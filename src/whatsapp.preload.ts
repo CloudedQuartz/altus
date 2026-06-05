@@ -1,9 +1,41 @@
-import { ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 import { Theme } from "./stores/themes/common";
 import { formatSelectedText } from "./utils/webview/formatSelectedText";
 import { getLuminance } from "color2k";
 
 let titleElement: HTMLTitleElement;
+
+contextBridge.exposeInMainWorld("__altusFocusWindowFromNotification", () => {
+  ipcRenderer.send("focus-window-from-notification");
+});
+
+contextBridge.executeInMainWorld({
+  func: () => {
+    const win = window as typeof window & {
+      __altusFocusWindowFromNotification?: () => void;
+      __altusNotificationPatchInstalled?: boolean;
+    };
+
+    if (win.__altusNotificationPatchInstalled || !win.Notification) return;
+    win.__altusNotificationPatchInstalled = true;
+
+    const OriginalNotification = win.Notification;
+
+    win.Notification = new Proxy(OriginalNotification, {
+      construct(target, args, newTarget) {
+        const notification = Reflect.construct(target, args, newTarget);
+
+        notification.addEventListener("click", () => {
+          setTimeout(() => {
+            win.__altusFocusWindowFromNotification?.();
+          }, 0);
+        });
+
+        return notification;
+      },
+    });
+  },
+});
 
 window.onload = () => {
   titleElement = document.querySelector("title") as HTMLTitleElement;

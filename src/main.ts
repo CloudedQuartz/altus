@@ -505,6 +505,15 @@ function addIPCHandlers(mainWindow: BrowserWindow) {
     }
   );
 
+  ipcMain.on("focus-window-from-notification", (event) => {
+    const senderUrl = event.senderFrame?.url ?? event.sender.getURL();
+    if (!senderUrl.startsWith("https://web.whatsapp.com/")) return;
+
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
   ipcMain.on("open-link", (_event, url: string) => {
     shell.openExternal(url);
   });
