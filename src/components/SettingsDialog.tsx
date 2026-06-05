@@ -41,9 +41,12 @@ const SettingsDialog: Component<{
                   checked={getSettingValue("trayIcon")}
                   onChange={(checked) => {
                     setSettingValue("trayIcon", checked);
-                    // Avoid redundant writes: trayIcon has a main-process side effect.
-                    if (!checked && getSettingValue("closeToTray")) {
-                      setSettingValue("closeToTray", false);
+                    if (!checked) {
+                      // Avoid redundant writes: trayIcon has a main-process side effect.
+                      if (getSettingValue("closeToTray")) {
+                        setSettingValue("closeToTray", false);
+                      }
+                      setSettingValue("launchInTray", false);
                     }
                   }}
                   class="items-start"
@@ -176,15 +179,39 @@ const SettingsDialog: Component<{
               <div class="py-2.5">
                 <StyledSwitch
                   checked={getSettingValue("launchMinimized")}
-                  onChange={(checked) =>
-                    setSettingValue("launchMinimized", checked)
-                  }
+                  onChange={(checked) => {
+                    setSettingValue("launchMinimized", checked);
+                    if (checked) setSettingValue("launchInTray", false);
+                  }}
                   class="items-start"
                 >
                   <div class="flex flex-col gap-1.5">
                     <div class="font-semibold">{t("launchMinimized")}</div>
                     <div class="text-zinc-300 max-w-[30ch] leading-snug text-sm">
                       {t("launchMinimizedDescription")}
+                    </div>
+                  </div>
+                </StyledSwitch>
+              </div>
+              <div class="py-2.5">
+                <StyledSwitch
+                  checked={getSettingValue("launchInTray")}
+                  onChange={(checked) => {
+                    setSettingValue("launchInTray", checked);
+                    if (checked) {
+                      // Avoid redundant writes: trayIcon has a main-process side effect.
+                      if (!getSettingValue("trayIcon")) {
+                        setSettingValue("trayIcon", true);
+                      }
+                      setSettingValue("launchMinimized", false);
+                    }
+                  }}
+                  class="items-start"
+                >
+                  <div class="flex flex-col gap-1.5">
+                    <div class="font-semibold">{t("launchInTray")}</div>
+                    <div class="text-zinc-300 max-w-[30ch] leading-snug text-sm">
+                      {t("launchInTrayDescription")}
                     </div>
                   </div>
                 </StyledSwitch>

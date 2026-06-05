@@ -105,5 +105,7 @@
   "Exit": "Exit",
   "Cancel": "Cancel",
   "Are you sure you want to exit?": "Are you sure you want to exit?",
-  "Pick color": "Pick color"
+  "Pick color": "Pick color",
+  "launchInTray": "Start in Tray",
+  "launchInTrayDescription": "When enabled, the app will start hidden in the system tray"
 }

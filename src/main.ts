@@ -136,7 +136,14 @@ function createWindow() {
     );
   }
 
-  if (getSettingWithDefault("launchMinimized")) {
+  const shouldLaunchInTray =
+    getSettingWithDefault("launchInTray") && getSettingWithDefault("trayIcon");
+  const shouldLaunchMinimized =
+    !shouldLaunchInTray && getSettingWithDefault("launchMinimized");
+
+  if (shouldLaunchInTray) {
+    // Keep the window hidden; BrowserWindow is created with show: false.
+  } else if (shouldLaunchMinimized) {
     mainWindow.minimize();
     mainWindow.blur();
   } else {
